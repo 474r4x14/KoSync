@@ -2,6 +2,7 @@ package link.v01d.kosync.dao
 
 import kotlinx.coroutines.Dispatchers
 import link.v01d.kosync.classes.User
+import link.v01d.kosync.classes.UserAuth
 import link.v01d.kosync.plugins.DB
 import link.v01d.kosync.schemas.UserSchema
 import org.jetbrains.exposed.sql.*
@@ -9,7 +10,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class UserDao {
+object UserDao {
 
         init {
             transaction(DB.conn) {
@@ -20,17 +21,37 @@ class UserDao {
         suspend fun <T> dbQuery(block: suspend () -> T): T =
             newSuspendedTransaction(Dispatchers.IO) { block() }
 
-        suspend fun create(user: User): Int = dbQuery {
-            UserSchema.insert {
-                it[name] = user.name
-//            it[age] = user.age
-            }[UserSchema.id]
+        suspend fun create(userAuth: UserAuth): User  {
+            val insertId = dbQuery {
+                UserSchema.insert {
+                    it[username] = userAuth.username
+                    it[password] = userAuth.password
+                }[UserSchema.id]
+            }
+            val user = User(userAuth.username)
+            user.id = insertId
+            return user
         }
 
-        suspend fun read(id: Int): User? {
+        suspend fun auth(userAuth: UserAuth): User?  {
+            val userRow = dbQuery {
+                UserSchema.select {
+                    (UserSchema.username eq userAuth.username) and
+                    (UserSchema.password eq userAuth.password)
+                }.singleOrNull()
+            }
+            if (userRow is ResultRow) {
+                val user = User(userRow[UserSchema.username])
+                user.id = userRow[UserSchema.id]
+                return user
+            }
+            return null
+        }
+
+        suspend fun read(username: String): User? {
             return dbQuery {
-                UserSchema.select { UserSchema.id eq id }
-                    .map { User(it[UserSchema.name]) }
+                UserSchema.select { UserSchema.username eq username }
+                    .map { User(it[UserSchema.username]) }
                     .singleOrNull()
             }
         }
@@ -38,7 +59,7 @@ class UserDao {
         suspend fun update(id: Int, user: User) {
             dbQuery {
                 UserSchema.update({ UserSchema.id eq id }) {
-                    it[name] = user.name
+                    it[username] = user.username
 //                it[age] = user.age
                 }
             }
