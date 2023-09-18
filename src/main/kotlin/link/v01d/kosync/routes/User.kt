@@ -3,14 +3,17 @@ package link.v01d.kosync.routes
 import com.google.gson.Gson
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import link.v01d.kosync.classes.Error
 import link.v01d.kosync.classes.User
 import link.v01d.kosync.classes.UserAuth
 import link.v01d.kosync.dao.UserDao
 
 fun Route.userRoutes() {
+//    val userService = UserDao()
     val gson = Gson()
 
     // Create user
@@ -24,7 +27,7 @@ fun Route.userRoutes() {
                 call.respond(HttpStatusCode.Created, gson.toJson(user))
             }
         }
-        call.respond(HttpStatusCode.BadRequest, "invalid fields")
+        call.respond(HttpStatusCode.BadRequest, Error.Code.error_invalid_fields)
     }
 
     get("/users/auth") {
