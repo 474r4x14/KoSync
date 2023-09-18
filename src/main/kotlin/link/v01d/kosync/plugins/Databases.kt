@@ -7,7 +7,7 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 
 object DB {
     lateinit var conn:Database
-    suspend fun <T> dbQuery(block: suspend () -> T): T =
+    suspend fun <T> query(block: suspend () -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block() }
 
 }

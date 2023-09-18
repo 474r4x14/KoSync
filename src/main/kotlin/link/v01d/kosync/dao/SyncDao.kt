@@ -1,13 +1,11 @@
 package link.v01d.kosync.dao
 
-import kotlinx.coroutines.Dispatchers
 import link.v01d.kosync.classes.Sync
 import link.v01d.kosync.classes.SyncUpdated
 import link.v01d.kosync.classes.User
 import link.v01d.kosync.plugins.DB
 import link.v01d.kosync.schemas.SyncSchema
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object SyncDao {
@@ -18,11 +16,9 @@ object SyncDao {
             }
         }
 
-        suspend fun <T> dbQuery(block: suspend () -> T): T =
-            newSuspendedTransaction(Dispatchers.IO) { block() }
 
         suspend fun read(document: String, user: User): Sync? {
-            val syncData = dbQuery {
+            val syncData = DB.query {
                 SyncSchema.select {
                     SyncSchema.document eq document
                     SyncSchema.userId eq user.id
@@ -50,15 +46,15 @@ object SyncDao {
                 syncData.progress.isNotEmpty() &&
                 syncData.device.isNotEmpty()
             ) {
-                dbQuery {
+                DB.query {
                     SyncSchema.replace {
                         it[SyncSchema.userId] = userId
-                        it[SyncSchema.device] = syncData.device
-                        it[SyncSchema.deviceId] = syncData.deviceId
-                        it[SyncSchema.document] = syncData.document
-                        it[SyncSchema.progress] = syncData.progress
-                        it[SyncSchema.percentage] = syncData.percentage
-                        it[SyncSchema.dateCreated] = syncData.dateCreated
+                        it[device] = syncData.device
+                        it[deviceId] = syncData.deviceId
+                        it[document] = syncData.document
+                        it[progress] = syncData.progress
+                        it[percentage] = syncData.percentage
+                        it[dateCreated] = syncData.dateCreated
                     }
                 }
                 return SyncUpdated(syncData.document, syncData.dateCreated.millis.toString())

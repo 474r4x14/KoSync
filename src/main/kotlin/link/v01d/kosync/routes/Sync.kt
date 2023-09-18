@@ -12,26 +12,10 @@ import link.v01d.kosync.classes.UserAuth
 import link.v01d.kosync.dao.SyncDao
 import link.v01d.kosync.dao.UserDao
 import org.joda.time.DateTime
-import java.security.Timestamp
-import java.util.Date
 
 fun Route.syncRoutes() {
     val gson = Gson()
-/*
-    // Push progress
-    post("/users/create") {
-        val userAuth = call.receive<UserAuth>()
-        if ((userAuth.username.isNotEmpty() && userAuth.password.isNotEmpty())) {
-            // Make sure the username is unique
-            val userCheck = UserDao.read(userAuth.username)
-            if (userCheck !is User) {
-                val user = UserDao.create(userAuth)
-                call.respond(HttpStatusCode.Created, gson.toJson(user))
-            }
-        }
-        call.respond(HttpStatusCode.BadRequest, "invalid fields")
-    }
-*/
+
     // Get the latest hash
     get("/syncs/progress") {
         val headers = call.request.headers
@@ -53,9 +37,6 @@ fun Route.syncRoutes() {
         val username = headers["x-auth-user"] ?: ""
         val password = headers["x-auth-key"] ?: ""
         val userAuth = UserAuth(username, password)
-//        val syncData = call.receive<Sync>()
-//        val syncData = call.receiveParameters()
-//        val params = call.parameters
 
         var hash = ""
         if (call.parameters.contains("hash")) {
@@ -82,7 +63,6 @@ fun Route.syncRoutes() {
             syncData.dateCreated = DateTime.now()
             val syncUpdated = SyncDao.update(syncData, userData.id)
             call.respond(HttpStatusCode.OK, gson.toJson(syncUpdated))
-
         }
 
         call.respond(HttpStatusCode.BadRequest, "principal.name [$username|$password]")
