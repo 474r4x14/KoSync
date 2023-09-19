@@ -13,7 +13,7 @@ plugins {
 }
 
 group = "link.v01d.kosync"
-version = "0.0.1"
+version = "1.0.0"
 
 application {
     mainClass.set("io.ktor.server.jetty.EngineMain")
