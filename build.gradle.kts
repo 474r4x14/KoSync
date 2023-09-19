@@ -9,6 +9,7 @@ plugins {
     kotlin("jvm") version "1.9.10"
     id("io.ktor.plugin") version "2.3.4"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.10"
+    id ("war")
 }
 
 group = "link.v01d.kosync"
@@ -26,8 +27,8 @@ repositories {
 }
 
 dependencies {
-    implementation("io.ktor:ktor-server-core-jvm")
-    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm")
+    implementation("io.ktor:ktor-server-core-jvm:2.2.4")
+    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:2.2.4")
     implementation("io.ktor:ktor-server-content-negotiation-jvm")
     implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
@@ -36,6 +37,7 @@ dependencies {
     implementation("io.ktor:ktor-server-jetty-jvm")
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("io.ktor:ktor-serialization-gson:$ktor_version")
+    implementation("org.jetbrains.exposed:exposed-jodatime:$exposed_version")
     implementation("mysql:mysql-connector-java:8.0.30")
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
