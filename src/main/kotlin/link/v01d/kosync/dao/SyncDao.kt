@@ -20,8 +20,8 @@ object SyncDao {
         suspend fun read(document: String, user: User): Sync? {
             val syncData = DB.query {
                 SyncSchema.select {
-                    SyncSchema.document eq document
-                    SyncSchema.userId eq user.id
+                    (SyncSchema.document eq document) and
+                    (SyncSchema.userId eq user.id)
                 }
                     .orderBy(SyncSchema.dateCreated,SortOrder.DESC)
                     .limit(1)
